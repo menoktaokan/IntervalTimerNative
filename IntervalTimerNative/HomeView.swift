@@ -295,6 +295,7 @@ struct HomeView: View {
     private func startTimer() {
         guard let collection = currentCollection, !collection.timers.isEmpty else { return }
         engine.timers = collection.timers
+        engine.collectionTitle = collection.title    // Live Activity'de koleksiyon adını göster
         engine.start()
         showingRunning = true
     }

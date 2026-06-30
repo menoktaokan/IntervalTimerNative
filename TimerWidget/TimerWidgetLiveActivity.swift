@@ -1,80 +1,109 @@
-//
-//  TimerWidgetLiveActivity.swift
-//  TimerWidget
-//
-//  Created by Mehmet Okan YILMAZ on 29.06.2026.
-//
-
 import ActivityKit
 import WidgetKit
 import SwiftUI
 
-struct TimerWidgetAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        // Dynamic stateful properties about your activity go here!
-        var emoji: String
-    }
-
-    // Fixed non-changing properties about your activity go here!
-    var name: String
-}
+// MARK: - Live Activity Görünümü
+// TimerWidgetAttributes artık Shared/TimerWidgetAttributes.swift dosyasında tanımlı.
+// Bu dosya sadece görünümü (UI) içerir.
 
 struct TimerWidgetLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: TimerWidgetAttributes.self) { context in
-            // Lock screen/banner UI goes here
-            VStack {
-                Text("Hello \(context.state.emoji)")
+
+            // MARK: Kilit Ekranı Görünümü
+            if context.state.isCompleted {
+                HStack {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.green)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Tamamlandı!")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text(context.attributes.collectionTitle)
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    Spacer()
+                }
+                .padding()
+                .activityBackgroundTint(.black.opacity(0.85))
+
+            } else {
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(context.state.segmentLabel)
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text("\(context.state.currentIndex + 1)/\(context.state.totalCount)")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+
+                    Spacer()
+
+                    if context.state.isPaused {
+                        Text("⏸ Bekliyor")
+                            .font(.title3.monospacedDigit().weight(.bold))
+                            .foregroundColor(.orange)
+                    } else {
+                        Text(timerInterval: Date.now...context.state.endTime, countsDown: true)
+                            .font(.title.monospacedDigit().weight(.bold))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.trailing)
+                    }
+                }
+                .padding()
+                .activityBackgroundTint(.black.opacity(0.85))
             }
-            .activityBackgroundTint(Color.cyan)
-            .activitySystemActionForegroundColor(Color.black)
 
         } dynamicIsland: { context in
             DynamicIsland {
-                // Expanded UI goes here.  Compose the expanded UI through
-                // various regions, like leading/trailing/center/bottom
                 DynamicIslandExpandedRegion(.leading) {
-                    Text("Leading")
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(context.state.segmentLabel)
+                            .font(.headline)
+                        Text(context.attributes.collectionTitle)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text("Trailing")
+                    if context.state.isPaused {
+                        Text("⏸")
+                            .font(.title2)
+                    } else if !context.state.isCompleted {
+                        Text(timerInterval: Date.now...context.state.endTime, countsDown: true)
+                            .font(.title2.monospacedDigit().weight(.bold))
+                            .foregroundColor(.cyan)
+                            .multilineTextAlignment(.trailing)
+                    }
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    Text("Bottom \(context.state.emoji)")
-                    // more content
+                    ProgressView(
+                        value: Double(context.state.currentIndex),
+                        total: Double(max(context.state.totalCount, 1))
+                    )
+                    .tint(.cyan)
                 }
             } compactLeading: {
-                Text("L")
+                Text(String(context.state.segmentLabel.prefix(4)))
+                    .font(.caption.weight(.semibold))
             } compactTrailing: {
-                Text("T \(context.state.emoji)")
+                if context.state.isPaused {
+                    Text("⏸")
+                        .font(.caption)
+                } else if !context.state.isCompleted {
+                    Text(timerInterval: Date.now...context.state.endTime, countsDown: true)
+                        .font(.caption.monospacedDigit().weight(.bold))
+                        .multilineTextAlignment(.trailing)
+                } else {
+                    Text("✅")
+                }
             } minimal: {
-                Text(context.state.emoji)
+                Image(systemName: "timer")
+                    .foregroundColor(.cyan)
             }
-            .widgetURL(URL(string: "http://www.apple.com"))
-            .keylineTint(Color.red)
         }
     }
-}
-
-extension TimerWidgetAttributes {
-    fileprivate static var preview: TimerWidgetAttributes {
-        TimerWidgetAttributes(name: "World")
-    }
-}
-
-extension TimerWidgetAttributes.ContentState {
-    fileprivate static var smiley: TimerWidgetAttributes.ContentState {
-        TimerWidgetAttributes.ContentState(emoji: "😀")
-     }
-     
-     fileprivate static var starEyes: TimerWidgetAttributes.ContentState {
-         TimerWidgetAttributes.ContentState(emoji: "🤩")
-     }
-}
-
-#Preview("Notification", as: .content, using: TimerWidgetAttributes.preview) {
-   TimerWidgetLiveActivity()
-} contentStates: {
-    TimerWidgetAttributes.ContentState.smiley
-    TimerWidgetAttributes.ContentState.starEyes
 }

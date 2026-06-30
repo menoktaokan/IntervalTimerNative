@@ -12,7 +12,6 @@ import SwiftUI
 struct TimerWidgetBundle: WidgetBundle {
     var body: some Widget {
         TimerWidget()
-        TimerWidgetControl()
         TimerWidgetLiveActivity()
     }
 }

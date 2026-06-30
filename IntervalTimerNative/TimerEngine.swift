@@ -55,9 +55,12 @@ class TimerEngine {
     // Duraklatıldığında kalan süreyi sakla (devam ettirmek için)
     private var remainingAtPause: TimeInterval = 0
 
-    // Ses ve bildirim yöneticilerine kısa erişim
+    // Ses ve Live Activity yöneticilerine kısa erişim
     private let sound = SoundManager.shared
-    private let notif = NotificationManager.shared
+    private let live = LiveActivityManager.shared
+
+    // Koleksiyon adı — Live Activity'de gösterilir
+    var collectionTitle: String = ""
 
     // Son kaç saniyede uyarı sesi çalsın
     private let warningSeconds = 3
@@ -83,8 +86,14 @@ class TimerEngine {
     func start() {
         guard !timers.isEmpty else { return }
         sound.startBackgroundLoop()
-        // Tüm segment bitişleri için bildirim planla
-        notif.scheduleSegmentNotifications(timers: timers, startingFrom: 0)
+        // Live Activity başlat — kilit ekranında canlı geri sayım görünecek
+        live.start(
+            collectionTitle: collectionTitle,
+            segmentLabel: timers[0].label,
+            index: 0,
+            total: timers.count,
+            duration: timers[0].duration
+        )
         startSegment(at: 0)
     }
 
@@ -93,8 +102,6 @@ class TimerEngine {
         remainingAtPause = endTime.timeIntervalSinceNow
         stopTicking()
         status = .paused
-        // Duraklatıldığında planlanmış bildirimleri iptal et (yanlış zamanda gelmesin)
-        notif.cancelAll()
 
         if let t = currentTimer {
             sound.updateNowPlaying(
@@ -102,6 +109,14 @@ class TimerEngine {
                 elapsed: Double(t.duration) - remaining,
                 total: Double(t.duration),
                 isPlaying: false
+            )
+            // Live Activity'yi duraklatma durumuna güncelle
+            live.update(
+                segmentLabel: t.label,
+                index: currentIndex,
+                total: timers.count,
+                duration: Int(remaining),
+                isPaused: true
             )
         }
     }
@@ -112,8 +127,6 @@ class TimerEngine {
         lastWarnedSecond = remainingInt + 1
         status = .running
         beginTicking()
-        // Kalan segmentler için bildirimleri yeniden planla
-        notif.scheduleSegmentNotifications(timers: timers, startingFrom: currentIndex)
 
         if let t = currentTimer {
             sound.updateNowPlaying(
@@ -122,6 +135,14 @@ class TimerEngine {
                 total: Double(t.duration),
                 isPlaying: true
             )
+            // Live Activity'yi devam ettir
+            live.update(
+                segmentLabel: t.label,
+                index: currentIndex,
+                total: timers.count,
+                duration: Int(remaining),
+                isPaused: false
+            )
         }
     }
 
@@ -129,7 +150,7 @@ class TimerEngine {
     func reset() {
         stopTicking()
         sound.stopBackgroundLoop()
-        notif.cancelAll()           // Planlanmış bildirimleri iptal et
+        live.stop()                 // Live Activity'yi kaldır
         currentIndex = -1
         remaining = 0
         status = .idle
@@ -154,18 +175,29 @@ class TimerEngine {
         let duration = timers[index].duration
         remaining = TimeInterval(duration)
 
-        // Bitiş zamanı = şimdi + süre
         endTime = Date().addingTimeInterval(TimeInterval(duration))
         lastWarnedSecond = duration + 1
         status = .running
 
-        // Kilit ekranını güncelle
+        // Now Playing kilit ekranını güncelle
         sound.updateNowPlaying(
             title: timers[index].label,
             elapsed: 0,
             total: Double(duration),
             isPlaying: true
         )
+
+        // Live Activity'yi yeni segment bilgisiyle güncelle
+        // (ilk segment zaten start()'ta başlatılıyor, burada sadece güncelleme)
+        if index > 0 {
+            live.update(
+                segmentLabel: timers[index].label,
+                index: index,
+                total: timers.count,
+                duration: duration,
+                isPaused: false
+            )
+        }
 
         beginTicking()
     }
@@ -231,12 +263,12 @@ class TimerEngine {
     private func finishAll() {
         stopTicking()
         sound.stopBackgroundLoop()
-        notif.cancelAll()           // Artık bildirimlere gerek yok
+        // Live Activity'yi "tamamlandı" olarak işaretle (1 dk sonra otomatik kalkar)
+        live.complete(total: timers.count)
         currentIndex = -1
         remaining = 0
         status = .completed
 
-        // Tamamlanma sesi ve titreşimi
         sound.playAllDone()
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
