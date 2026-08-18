@@ -55,7 +55,6 @@ class TimerEngine {
 
     private let sound = SoundManager.shared
     private let live = LiveActivityManager.shared
-    private let notifications = NotificationManager.shared
     private let impactFeedback = UIImpactFeedbackGenerator(style: .light)
     private let notificationFeedback = UINotificationFeedbackGenerator()
 
@@ -94,7 +93,6 @@ class TimerEngine {
             total: timers.count,
             duration: timers[0].duration
         )
-        notifications.scheduleSegmentNotifications(timers: timers, startingFrom: 0)
         startSegment(at: 0)
     }
 
@@ -102,7 +100,6 @@ class TimerEngine {
     func pause() {
         remainingAtPause = endTime.timeIntervalSinceNow
         stopTicking()
-        notifications.cancelAll()
         status = .paused
 
         if let t = currentTimer {
@@ -128,7 +125,6 @@ class TimerEngine {
         endTime = Date().addingTimeInterval(remainingAtPause)
         lastWarnedSecond = remainingInt + 1
         status = .running
-        notifications.scheduleSegmentNotifications(timers: timers, startingFrom: currentIndex)
         beginTicking()
 
         if let t = currentTimer {
@@ -153,7 +149,6 @@ class TimerEngine {
     func reset() {
         stopTicking()
         sound.stopBackgroundLoop()
-        notifications.cancelAll()
         live.stop()
         currentIndex = -1
         remaining = 0
@@ -260,7 +255,6 @@ class TimerEngine {
     private func finishAll() {
         stopTicking()
         sound.stopBackgroundLoop()
-        notifications.cancelAll()
         live.complete(total: timers.count)
         currentIndex = -1
         remaining = 0

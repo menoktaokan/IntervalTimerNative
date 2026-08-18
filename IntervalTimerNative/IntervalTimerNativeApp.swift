@@ -9,7 +9,6 @@ struct IntervalTimerNativeApp: App {
 
     init() {
         _ = SoundManager.shared
-        NotificationManager.shared.requestPermission()
     }
 
     var body: some Scene {
