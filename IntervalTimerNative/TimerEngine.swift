@@ -37,9 +37,7 @@ class TimerEngine {
 
     // MARK: - İç Değişkenler (Arayüzde Gösterilmez)
 
-    // Timer: iOS'un zamanlama nesnesi. Her 50ms'de bir tetiklenir.
-    // React Native'deki setInterval karşılığı, ama iOS optimize eder.
-    private var timer: Timer?
+    private var timer: DispatchSourceTimer?
 
     // Mevcut segmentin bitiş zamanı (Unix timestamp olarak)
     // Neden süreyi saymak yerine bitiş zamanını saklıyoruz?
@@ -208,19 +206,17 @@ class TimerEngine {
         beginTicking()
     }
 
-    /// Her 50ms'de çalışan geri sayım döngüsünü başlat
     private func beginTicking() {
-        stopTicking()   // Önceki Timer varsa temizle
-
-        // Timer.scheduledTimer: iOS'un resmi zamanlama mekanizması
-        // - timeInterval: Her kaç saniyede bir tetiklensin (0.05 = 50ms)
-        // - repeats: Tekrarlansın mı
-        // - RunLoop.main + .common: Kaydırma sırasında bile çalışmaya devam et
-        timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
-            self?.tick()
+        stopTicking()
+        let source = DispatchSource.makeTimerSource(queue: .global(qos: .userInteractive))
+        source.schedule(deadline: .now(), repeating: .milliseconds(50))
+        source.setEventHandler { [weak self] in
+            DispatchQueue.main.async {
+                self?.tick()
+            }
         }
-        // .common modu: Ekran kaydırılırken Timer'ın durmasını engeller
-        RunLoop.main.add(timer!, forMode: .common)
+        timer = source
+        source.resume()
     }
 
     /// Her 50ms'de çağrılan geri sayım fonksiyonu
@@ -274,9 +270,8 @@ class TimerEngine {
         notificationFeedback.notificationOccurred(.success)
     }
 
-    /// Timer'ı durdur ve temizle
     private func stopTicking() {
-        timer?.invalidate()     // Timer'ı iptal et
-        timer = nil             // Referansı temizle (bellek sızıntısını önler)
+        timer?.cancel()
+        timer = nil
     }
 }
