@@ -17,8 +17,8 @@ struct HomeView: View {
     @State private var editingItem: TimerItem? = nil
     @State private var showingCollectionInput = false
     @State private var newCollectionTitle = ""
-
-    // List'in düzenleme modunu kontrol eder (sürükle-bırak sıralama için)
+    @State private var showingRenameInput = false
+    @State private var renameTitle = ""
     @State private var isEditing = false
 
     private var currentCollection: TimerCollection? {
@@ -71,14 +71,19 @@ struct HomeView: View {
                             }
                         }
 
-                        Divider()   // Ayırıcı çizgi
+                        Divider()
 
-                        // Yeni koleksiyon ekle
+                        Button(action: {
+                            renameTitle = currentCollection?.title ?? ""
+                            showingRenameInput = true
+                        }) {
+                            Label("Yeniden Adlandır", systemImage: "pencil")
+                        }
+
                         Button(action: { showingCollectionInput = true }) {
                             Label("Yeni Koleksiyon", systemImage: "plus")
                         }
 
-                        // Mevcut koleksiyonu sil (en az 1 koleksiyon kalmalı)
                         if collections.count > 1 {
                             Button(role: .destructive, action: deleteCurrentCollection) {
                                 Label("Bu Koleksiyonu Sil", systemImage: "trash")
@@ -219,6 +224,9 @@ struct HomeView: View {
 
         .onAppear {
             collections = TimerCollection.loadAll()
+            if selectedIndex >= collections.count {
+                selectedIndex = max(0, collections.count - 1)
+            }
         }
 
         .sheet(isPresented: $showingAddSheet) {
@@ -257,6 +265,19 @@ struct HomeView: View {
             }
             Button("İptal", role: .cancel) {
                 newCollectionTitle = ""
+            }
+        }
+
+        .alert("Yeniden Adlandır", isPresented: $showingRenameInput) {
+            TextField("Koleksiyon adı", text: $renameTitle)
+            Button("Kaydet") {
+                guard !renameTitle.isEmpty else { return }
+                collections[selectedIndex].title = renameTitle
+                renameTitle = ""
+                saveAll()
+            }
+            Button("İptal", role: .cancel) {
+                renameTitle = ""
             }
         }
     }

@@ -67,17 +67,28 @@ extension TimerCollection {
             .appendingPathComponent("timer_collections.json")
     }
 
-    /// Koleksiyonları JSON dosyasına kaydet
+    static let appGroupID = "group.com.intervaltimer.shared"
+
     static func save(_ collections: [TimerCollection]) {
         do {
-            // JSONEncoder: Swift nesnelerini → JSON verisine dönüştürür
             let data = try JSONEncoder().encode(collections)
-
-            // Dosyaya yaz. atomicWrite: Ya tamamen yazar ya hiç yazmaz (veri bütünlüğü)
             try data.write(to: fileURL, options: .atomicWrite)
+            saveToWidget(collections)
         } catch {
             print("Koleksiyonlar kaydedilemedi: \(error)")
         }
+    }
+
+    private static func saveToWidget(_ collections: [TimerCollection]) {
+        guard let defaults = UserDefaults(suiteName: appGroupID) else { return }
+        let summaries = collections.map { c in
+            [
+                "title": c.title,
+                "count": "\(c.timers.count)",
+                "total": formatMMSS(Double(c.timers.reduce(0) { $0 + $1.duration }))
+            ]
+        }
+        defaults.set(summaries, forKey: "widget_collections")
     }
 
     /// Kaydedilmiş koleksiyonları diskten oku
