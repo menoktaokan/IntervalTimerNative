@@ -20,6 +20,7 @@ struct HomeView: View {
     @State private var showingRenameInput = false
     @State private var renameTitle = ""
     @State private var isEditing = false
+    @State private var soundEnabled = SoundManager.shared.isSoundEnabled
 
     private var currentCollection: TimerCollection? {
         guard selectedIndex >= 0, selectedIndex < collections.count else { return nil }
@@ -38,6 +39,17 @@ struct HomeView: View {
                         .foregroundColor(AppColors.textPrimary)
 
                     Spacer()
+
+                    // Ses açma / kapama
+                    Button {
+                        soundEnabled.toggle()
+                        SoundManager.shared.isSoundEnabled = soundEnabled
+                    } label: {
+                        Image(systemName: soundEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                            .font(.body)
+                            .foregroundColor(soundEnabled ? AppColors.primary : AppColors.textSecondary)
+                    }
+                    .padding(.trailing, 4)
 
                     // Düzenle / Bitti butonu — sıralama modunu açar/kapar
                     if !(currentCollection?.timers.isEmpty ?? true) {

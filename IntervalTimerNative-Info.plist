@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Arka planda ses çalabilmek için gerekli.
+	  Bu anahtar olmadan iOS, uygulama arka plandayken ses oturumunu
+	  aktifleştirmeyi reddeder ('!pla' / CannotStartPlaying hatası) ve
+	  ekran kilitlendiğinde geri sayım sesleri susar.
+
+	  Not: INFOPLIST_KEY_UIBackgroundModes build ayarı bu projede
+	  (SDKROOT = auto, çok platformlu hedef) üretilen plist'e yazılmıyordu,
+	  bu yüzden anahtar burada açıkça tanımlanıyor.
+	-->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
+</dict>
+</plist>
