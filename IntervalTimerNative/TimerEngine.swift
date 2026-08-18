@@ -55,9 +55,11 @@ class TimerEngine {
     // Duraklatıldığında kalan süreyi sakla (devam ettirmek için)
     private var remainingAtPause: TimeInterval = 0
 
-    // Ses ve Live Activity yöneticilerine kısa erişim
     private let sound = SoundManager.shared
     private let live = LiveActivityManager.shared
+    private let notifications = NotificationManager.shared
+    private let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+    private let notificationFeedback = UINotificationFeedbackGenerator()
 
     // Koleksiyon adı — Live Activity'de gösterilir
     var collectionTitle: String = ""
@@ -94,6 +96,7 @@ class TimerEngine {
             total: timers.count,
             duration: timers[0].duration
         )
+        notifications.scheduleSegmentNotifications(timers: timers, startingFrom: 0)
         startSegment(at: 0)
     }
 
@@ -101,6 +104,7 @@ class TimerEngine {
     func pause() {
         remainingAtPause = endTime.timeIntervalSinceNow
         stopTicking()
+        notifications.cancelAll()
         status = .paused
 
         if let t = currentTimer {
@@ -126,6 +130,7 @@ class TimerEngine {
         endTime = Date().addingTimeInterval(remainingAtPause)
         lastWarnedSecond = remainingInt + 1
         status = .running
+        notifications.scheduleSegmentNotifications(timers: timers, startingFrom: currentIndex)
         beginTicking()
 
         if let t = currentTimer {
@@ -150,7 +155,8 @@ class TimerEngine {
     func reset() {
         stopTicking()
         sound.stopBackgroundLoop()
-        live.stop()                 // Live Activity'yi kaldır
+        notifications.cancelAll()
+        live.stop()
         currentIndex = -1
         remaining = 0
         status = .idle
@@ -231,10 +237,7 @@ class TimerEngine {
             for s in stride(from: lastWarnedSecond - 1, through: wholeSec, by: -1) {
                 if s > 0 && s <= warningSeconds {
                     sound.playTick()
-
-                    // Titreşim geri bildirimi
-                    let generator = UIImpactFeedbackGenerator(style: .light)
-                    generator.impactOccurred()
+                    impactFeedback.impactOccurred()
                 }
             }
             lastWarnedSecond = wholeSec
@@ -249,9 +252,7 @@ class TimerEngine {
                 // Segment arası geçiş sesi
                 sound.playTimerDone()
 
-                // Titreşim: uyarı tipi (daha güçlü)
-                let generator = UINotificationFeedbackGenerator()
-                generator.notificationOccurred(.warning)
+                notificationFeedback.notificationOccurred(.warning)
 
                 // Sonraki segmete geç
                 startSegment(at: currentIndex + 1)
@@ -263,15 +264,14 @@ class TimerEngine {
     private func finishAll() {
         stopTicking()
         sound.stopBackgroundLoop()
-        // Live Activity'yi "tamamlandı" olarak işaretle (1 dk sonra otomatik kalkar)
+        notifications.cancelAll()
         live.complete(total: timers.count)
         currentIndex = -1
         remaining = 0
         status = .completed
 
         sound.playAllDone()
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
+        notificationFeedback.notificationOccurred(.success)
     }
 
     /// Timer'ı durdur ve temizle

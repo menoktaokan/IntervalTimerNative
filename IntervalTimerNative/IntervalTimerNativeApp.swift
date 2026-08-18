@@ -8,8 +8,8 @@ import SwiftUI
 struct IntervalTimerNativeApp: App {
 
     init() {
-        // SoundManager'ı başlat — ses oturumunu yapılandırır
         _ = SoundManager.shared
+        NotificationManager.shared.requestPermission()
     }
 
     var body: some Scene {
