@@ -57,7 +57,6 @@
 
 /* Begin PBXFileReference section */
 		8638200A2FF26F88002FC7F4 /* IntervalTimerNative.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IntervalTimerNative.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8638201A2FF26FB4002FC7F4 /* IntervalTimerWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IntervalTimerWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8638201F2FF26FB4002FC7F4 /* IntervalTimerWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "IntervalTimerWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8638205C2FF30288002FC7F4 /* TimerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TimerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8638205E2FF30288002FC7F4 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -145,7 +144,6 @@
 			isa = PBXGroup;
 			children = (
 				8638200A2FF26F88002FC7F4 /* IntervalTimerNative.app */,
-				8638201A2FF26FB4002FC7F4 /* IntervalTimerWatch.app */,
 				8638201F2FF26FB4002FC7F4 /* IntervalTimerWatch Watch App.app */,
 				8638205C2FF30288002FC7F4 /* TimerWidgetExtension.appex */,
 			);
@@ -172,11 +170,13 @@
 				863820072FF26F88002FC7F4 /* Frameworks */,
 				863820082FF26F88002FC7F4 /* Resources */,
 				863820772FF30289002FC7F4 /* Embed Foundation Extensions */,
+				8638202D2FF26FB5002FC7F4 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				863820712FF30289002FC7F4 /* PBXTargetDependency */,
+				863820222FF26FB4002FC7F4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				8638200C2FF26F88002FC7F4 /* IntervalTimerNative */,
@@ -187,25 +187,6 @@
 			productName = IntervalTimerNative;
 			productReference = 8638200A2FF26F88002FC7F4 /* IntervalTimerNative.app */;
 			productType = "com.apple.product-type.application";
-		};
-		863820192FF26FB4002FC7F4 /* IntervalTimerWatch */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 8638202E2FF26FB5002FC7F4 /* Build configuration list for PBXNativeTarget "IntervalTimerWatch" */;
-			buildPhases = (
-				863820182FF26FB4002FC7F4 /* Resources */,
-				8638202D2FF26FB5002FC7F4 /* Embed Watch Content */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				863820222FF26FB4002FC7F4 /* PBXTargetDependency */,
-			);
-			name = IntervalTimerWatch;
-			packageProductDependencies = (
-			);
-			productName = IntervalTimerWatch;
-			productReference = 8638201A2FF26FB4002FC7F4 /* IntervalTimerWatch.app */;
-			productType = "com.apple.product-type.application.watchapp2-container";
 		};
 		8638201E2FF26FB4002FC7F4 /* IntervalTimerWatch Watch App */ = {
 			isa = PBXNativeTarget;
@@ -264,9 +245,6 @@
 					863820092FF26F88002FC7F4 = {
 						CreatedOnToolsVersion = 26.6;
 					};
-					863820192FF26FB4002FC7F4 = {
-						CreatedOnToolsVersion = 26.6;
-					};
 					8638201E2FF26FB4002FC7F4 = {
 						CreatedOnToolsVersion = 26.6;
 					};
@@ -290,7 +268,6 @@
 			projectRoot = "";
 			targets = (
 				863820092FF26F88002FC7F4 /* IntervalTimerNative */,
-				863820192FF26FB4002FC7F4 /* IntervalTimerWatch */,
 				8638201E2FF26FB4002FC7F4 /* IntervalTimerWatch Watch App */,
 				8638205B2FF30288002FC7F4 /* TimerWidgetExtension */,
 			);
@@ -299,13 +276,6 @@
 
 /* Begin PBXResourcesBuildPhase section */
 		863820082FF26F88002FC7F4 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		863820182FF26FB4002FC7F4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -588,13 +558,13 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = IntervalTimerWatch;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKWatchOnly = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.okanyilmaz.IntervalTimerNative;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.okanyilmaz.IntervalTimerWatch.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.okanyilmaz.IntervalTimerNative.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -621,13 +591,13 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = IntervalTimerWatch;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKWatchOnly = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.okanyilmaz.IntervalTimerNative;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.okanyilmaz.IntervalTimerWatch.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.okanyilmaz.IntervalTimerNative.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -640,41 +610,6 @@
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;
 				WATCHOS_DEPLOYMENT_TARGET = 26.5;
-			};
-			name = Release;
-		};
-		8638202F2FF26FB5002FC7F4 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9CN9C638UH;
-				INFOPLIST_KEY_CFBundleDisplayName = IntervalTimerWatch;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.okanyilmaz.IntervalTimerWatch;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		863820302FF26FB5002FC7F4 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9CN9C638UH;
-				INFOPLIST_KEY_CFBundleDisplayName = IntervalTimerWatch;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.okanyilmaz.IntervalTimerWatch;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -769,15 +704,6 @@
 			buildConfigurations = (
 				8638202B2FF26FB5002FC7F4 /* Debug */,
 				8638202C2FF26FB5002FC7F4 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		8638202E2FF26FB5002FC7F4 /* Build configuration list for PBXNativeTarget "IntervalTimerWatch" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				8638202F2FF26FB5002FC7F4 /* Debug */,
-				863820302FF26FB5002FC7F4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
